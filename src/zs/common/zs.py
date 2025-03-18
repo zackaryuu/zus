@@ -33,3 +33,18 @@ def listIndex()-> dict[str, bool]:
         data = json.load(f)
 
     return data
+
+def getCli(path : str)->str:
+    cli_path = os.path.join(path, "cli.py")
+    if os.path.exists(cli_path):
+        pass
+    elif os.path.exists(os.path.join(path, "src", "cli.py")):
+        cli_path = os.path.join(path, "src", "cli.py")
+    elif os.path.exists(os.path.join(path, "src")):
+        folders = os.listdir(os.path.join(path, "src"))
+        folders = [f for f in folders if not f.startswith(".") or not f.startswith("_")]
+        if len(folders) == 1:
+            cli_path = os.path.join(path, "src", folders[0], "cli.py")
+    else:
+        return None
+    return cli_path

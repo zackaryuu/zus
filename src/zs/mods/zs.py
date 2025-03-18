@@ -19,8 +19,11 @@ def cli():
 @cli.command()
 @click.argument("name")
 @click.option("--giturl", "-g", help="Git URL")
-def install(name : str, giturl : str):
-    if giturl or name not in zs.listIndex():
+@click.option("--local", "-l", type=click.Path(exists=True), help="Local path")
+def install(name : str, giturl : str, local : str):
+    not_specified = not giturl and not local
+
+    if not_specified and name not in zs.listIndex():
         click.echo(f"zs.install: {name} not found")
         return
 
@@ -28,23 +31,19 @@ def install(name : str, giturl : str):
         click.echo(f"zs.install: {name} already installed")
         return
     
-    if not giturl:
+    if not_specified:
         giturl = f"https://github.com/zackaryuu/{name}.git"
 
-    # git clone at INSTALLED_PATH
-    os.system(f"git clone {giturl} {zs.INSTALLED_PATH}/{name}")
-
-    cli_path = os.path.join(zs.INSTALLED_PATH, name, "cli.py")
-    if os.path.exists(cli_path):
-        pass
-    elif os.path.exists(os.path.join(zs.INSTALLED_PATH, name, "src", "cli.py")):
-        cli_path = os.path.join(zs.INSTALLED_PATH, name, "src", "cli.py")
-    elif os.path.exists(os.path.join(zs.INSTALLED_PATH, name, "src")):
-        folders = os.listdir(os.path.join(zs.INSTALLED_PATH, name, "src"))
-        folders = [f for f in folders if not f.startswith(".") or not f.startswith("_")]
-        if len(folders) == 1:
-            cli_path = os.path.join(zs.INSTALLED_PATH, name, "src", folders[0], "cli.py")
+    if not local:
+        # git clone at INSTALLED_PATH
+        os.system(f"git clone {giturl} {zs.INSTALLED_PATH}/{name}")
+    elif not zs.getCli(local):
+        return click.echo(f"zs.install: cli for {name} not found")
     else:
+        shutil.copytree(local, os.path.join(zs.INSTALLED_PATH, name))
+
+    cli_path = zs.getCli(os.path.join(zs.INSTALLED_PATH, name))
+    if not cli_path:
         click.echo(f"zs.install: {name} not found")
         return
         
