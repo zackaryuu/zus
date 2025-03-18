@@ -4,6 +4,7 @@ import os
 import json
 import zs.common.zs as zs
 import tempfile
+import toml
 
 PS2EXE_SCRIPT = """
 #!/usr/bin/env pwsh
@@ -15,6 +16,39 @@ exit $LASTEXITCODE
 @click.group()
 def cli():
     pass
+
+@cli.command(help="Fill requirements")
+@click.argument("pkg", nargs=-1)
+def fillreq(pkg : list[str]):
+    if not pkg:
+        click.echo("zs.fillreq: No package provided")
+        return
+
+    for p in pkg:
+        if p not in zs.listInstalled():
+            click.echo(f"zs.fillreq: {p} not installed")
+            continue
+
+        req_path = os.path.join(zs.INSTALLED_PATH, p, "requirements.txt")
+        if not os.path.exists(req_path):
+            req_path = os.path.join(zs.INSTALLED_PATH, p, "pyproject.toml")
+
+        if not os.path.exists(req_path):
+            click.echo(f"zs.fillreq: {p} has no requirements")
+            continue
+
+        if req_path.endswith(".txt"):
+            os.system(f"pip install -r {req_path}")
+        elif req_path.endswith(".toml"):
+            with open(req_path, "r") as f:
+                data = toml.load(f)
+
+            for dep in data["project"]["dependencies"]:
+                os.system(f"pip install {dep}")
+
+        click.echo(f"zs.fillreq: {p} filled")
+
+
 
 @cli.command()
 @click.argument("name")

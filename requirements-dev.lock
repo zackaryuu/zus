@@ -48,6 +48,7 @@ pywin32-ctypes==0.2.3
     # via keyring
 requests==2.32.3
 toml==0.10.2
+    # via zus
 urllib3==2.3.0
     # via requests
 zuu==7.3.0

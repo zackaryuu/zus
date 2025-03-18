@@ -27,5 +27,7 @@ more-itertools==10.6.0
     # via jaraco-functools
 pywin32-ctypes==0.2.3
     # via keyring
+toml==0.10.2
+    # via zus
 zuu==7.3.0
     # via zus

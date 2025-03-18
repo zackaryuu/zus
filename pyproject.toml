@@ -2,7 +2,12 @@
 name = "zus"
 version = "0.2.1"
 description = "Zackary's Useful Shell"
-dependencies = [ "zuu>=7.3.0", "keyring>=25.6.0", "click>=8.1.8" ]
+dependencies = [
+    "zuu>=7.3.0",
+    "keyring>=25.6.0",
+    "click>=8.1.8",
+    "toml>=0.10.2",
+]
 readme = "README.md"
 requires-python = ">= 3.8"
 [[project.authors]]
