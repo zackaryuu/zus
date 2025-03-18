@@ -40,6 +40,8 @@ def install(name : str, giturl : str, local : str):
     elif not zs.getCli(local):
         return click.echo(f"zs.install: cli for {name} not found")
     else:
+        if os.path.exists(os.path.join(zs.INSTALLED_PATH, name)):
+            shutil.rmtree(os.path.join(zs.INSTALLED_PATH, name))
         shutil.copytree(local, os.path.join(zs.INSTALLED_PATH, name))
 
     cli_path = zs.getCli(os.path.join(zs.INSTALLED_PATH, name))
