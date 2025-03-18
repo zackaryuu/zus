@@ -35,13 +35,19 @@ def install(name : str, giturl : str):
     os.system(f"git clone {giturl} {zs.INSTALLED_PATH}/{name}")
 
     cli_path = os.path.join(zs.INSTALLED_PATH, name, "cli.py")
-    if not os.path.exists(cli_path):
-        if os.path.exists(os.path.join(zs.INSTALLED_PATH, name, "src", "cli.py")):
-            cli_path = os.path.join(zs.INSTALLED_PATH, name, "src", "cli.py")
-        else:
-            click.echo(f"zs.install: {name} not found")
-            return
-
+    if os.path.exists(cli_path):
+        pass
+    elif os.path.exists(os.path.join(zs.INSTALLED_PATH, name, "src", "cli.py")):
+        cli_path = os.path.join(zs.INSTALLED_PATH, name, "src", "cli.py")
+    elif os.path.exists(os.path.join(zs.INSTALLED_PATH, name, "src")):
+        folders = os.listdir(os.path.join(zs.INSTALLED_PATH, name, "src"))
+        folders = [f for f in folders if not f.startswith(".") or not f.startswith("_")]
+        if len(folders) == 1:
+            cli_path = os.path.join(zs.INSTALLED_PATH, name, "src", folders[0], "cli.py")
+    else:
+        click.echo(f"zs.install: {name} not found")
+        return
+        
     # if no update
     if name in zs.listIndex() and zs.listIndex()[name]:
         # remove .git
