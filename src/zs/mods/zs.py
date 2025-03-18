@@ -17,6 +17,7 @@ def cli():
     pass
 
 @cli.command()
+@click.argument("name")
 @click.option("--giturl", "-g", help="Git URL")
 def install(name : str, giturl : str):
     if giturl or name not in zs.listIndex():
