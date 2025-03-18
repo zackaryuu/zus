@@ -50,8 +50,7 @@ def install(name : str, giturl : str):
         
     # if no update
     if name in zs.listIndex() and zs.listIndex()[name]:
-        # remove .git
-        os.system(f"rm -rf {zs.INSTALLED_PATH}/{name}/.git")
+        shutil.rmtree(os.path.join(zs.INSTALLED_PATH, name, ".git"))
 
     # create ps2exe script
     with tempfile.NamedTemporaryFile(delete=False) as f:
