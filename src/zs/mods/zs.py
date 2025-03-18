@@ -49,14 +49,20 @@ def install(name : str, giturl : str):
         return
         
     # if no update
-    if name in zs.listIndex() and zs.listIndex()[name]:
+    if name in zs.listIndex() and not zs.listIndex()[name]:
         shutil.rmtree(os.path.join(zs.INSTALLED_PATH, name, ".git"))
 
     # create ps2exe script
-    with tempfile.NamedTemporaryFile(delete=False) as f:
-        f.write(PS2EXE_SCRIPT.format(cli_path=cli_path).encode())
-        f.flush()
-        os.system(f"ps2exe -inputFile {f.name} -outputFile {os.path.join(zs.SHIM_PATH, f'zs.{name}.exe')}")
+    try:
+        temp_dir = tempfile.mkdtemp()
+        temp_path = os.path.join(temp_dir, "ps2exe.ps1")
+        with open(temp_path, "w") as f:
+            f.write(PS2EXE_SCRIPT.format(cli_path=cli_path))
+        ps2exe_cmd = f"pwsh -c ps2exe -inputFile {temp_path} -outputFile {os.path.join(zs.SHIM_PATH, f'zs.{name}.exe')}"
+        click.echo(ps2exe_cmd)
+        os.system(ps2exe_cmd)
+    finally:
+        shutil.rmtree(temp_dir)
 
 
 @cli.command()
