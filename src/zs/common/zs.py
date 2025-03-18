@@ -22,8 +22,8 @@ def listInstalled()->list[str]:
         if pkg.startswith(".") or pkg.startswith("_"):
             continue
 
-        pkg = pkg.replace(".exe", "")
-        pkg = pkg.replace("zs", "")
+        pkg = os.path.splitext(pkg)[0]
+        pkg = pkg.replace("zs.", "")
         installed.append(pkg)
     return installed
 

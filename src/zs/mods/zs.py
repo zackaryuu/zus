@@ -9,8 +9,14 @@ import toml
 PS2EXE_SCRIPT = """
 #!/usr/bin/env pwsh
 $cliPath = "{cli_path}"
-python $cliPath @args
+python $cliPath $args
 exit $LASTEXITCODE
+"""
+
+BAT2EXE_SCRIPT = """
+@echo off
+python "{cli_path}" %*
+exit /b %errorlevel%
 """
 
 @click.group()
@@ -54,7 +60,8 @@ def fillreq(pkg : list[str]):
 @click.argument("name")
 @click.option("--giturl", "-g", help="Git URL")
 @click.option("--local", "-l", type=click.Path(exists=True), help="Local path")
-def install(name : str, giturl : str, local : str):
+@click.option("--ps2exe", "-p", is_flag=True, help="Use ps2exe")
+def install(name : str, giturl : str, local : str, ps2exe : bool):
     not_specified = not giturl and not local
 
     if not_specified and name not in zs.listIndex():
@@ -85,19 +92,31 @@ def install(name : str, giturl : str, local : str):
         
     # if no update
     if name in zs.listIndex() and not zs.listIndex()[name]:
+        click.echo(f"zs.install: removing {name} git given no future updates")
         shutil.rmtree(os.path.join(zs.INSTALLED_PATH, name, ".git"))
 
-    # create ps2exe script
+    # create SHIM
     try:
-        temp_dir = tempfile.mkdtemp()
-        temp_path = os.path.join(temp_dir, "ps2exe.ps1")
-        with open(temp_path, "w") as f:
-            f.write(PS2EXE_SCRIPT.format(cli_path=cli_path))
-        ps2exe_cmd = f"pwsh -c ps2exe -inputFile {temp_path} -outputFile {os.path.join(zs.SHIM_PATH, f'zs.{name}.exe')}"
-        click.echo(ps2exe_cmd)
-        os.system(ps2exe_cmd)
+        temp_dir = None
+
+        if not ps2exe:
+            with open(os.path.join(zs.SHIM_PATH, f'zs.{name}.bat'), "w") as f:
+                f.write(BAT2EXE_SCRIPT.format(cli_path=cli_path))
+        elif shutil.which("ps2exe"):
+            temp_dir = tempfile.mkdtemp()
+            temp_path = os.path.join(temp_dir, "ps2exe.ps1")
+            with open(temp_path, "w") as f:
+                f.write(PS2EXE_SCRIPT.format(cli_path=cli_path))
+            ps2exe_cmd = f"pwsh -c ps2exe -inputFile {temp_path} -outputFile {os.path.join(zs.SHIM_PATH, f'zs.{name}.exe')}"
+            click.echo(ps2exe_cmd)
+            os.system(ps2exe_cmd)
+        else:
+            click.echo("zs.install: ps2exe or bat2exe not found")
+            return
+
     finally:
-        shutil.rmtree(temp_dir)
+        if temp_dir:
+            shutil.rmtree(temp_dir)
 
 
 @cli.command()
@@ -105,7 +124,6 @@ def install(name : str, giturl : str, local : str):
 def update(name : list[str]):
     if not name:
         name = zs.listInstalled()
-
     for n in name:
         if n not in zs.listInstalled():
             click.echo(f"zs.update: {n} not installed")
