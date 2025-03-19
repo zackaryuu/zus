@@ -2,13 +2,14 @@ import click
 import os
 from zs import APP_CONFIG_PATH
 
-def get_keyring(
-    password : str | None = None
-):
+
+def get_keyring(password: str | None = None):
     try:
         from keyrings.cryptfile.cryptfile import CryptFileKeyring
     except ImportError:
-        return click.echo("cryptfile is not installed, install with `pip install keyrings.cryptfile`")
+        return click.echo(
+            "cryptfile is not installed, install with `pip install keyrings.cryptfile`"
+        )
 
     target_path = os.path.join(APP_CONFIG_PATH, "common", "crypt.store")
     keyring = CryptFileKeyring()

@@ -1,9 +1,9 @@
-
 import os
 import click
 import subprocess
 
 from zs.api.diffStore import DiffStore
+
 
 @click.command()
 @click.option("--password", "-p", help="Password for the keyring")
@@ -25,11 +25,12 @@ def cli(password, command, version, push, open_datafolder):
             password = f.read()
     elif password.startswith("keyring:"):
         from zuu.etc import os_keyring
+
         password = os_keyring.get_password(password[8:])
 
     if not version:
         version = "latest"
-    
+
     DiffStore.init(password)
     command = " ".join(command)
     click.echo(f"zs.diff: Running {command}")
@@ -39,18 +40,18 @@ def cli(password, command, version, push, open_datafolder):
     except FileNotFoundError as e:
         click.echo(f"zs.diff: Command not found - {e}")
         return
-    
+
     if run_result.returncode != 0:
         click.echo("zs.diff: Command failed")
         click.echo(run_result.stderr)
         return
-    
+
     # No need to decode since we're using text=True
     result = run_result.stdout.strip()
 
     if DiffStore.lastmodified:
         click.echo(f"zs.diff: Last modified: {DiffStore.lastmodified}")
-    
+
     data = DiffStore._get_diffItem(command)
 
     if push:
@@ -65,17 +66,13 @@ def cli(password, command, version, push, open_datafolder):
     if not data:
         click.echo("zs.diff: No past entry")
         return
-    
+
     verf = DiffStore.get(command, version, data)
     if verf == result:
         click.echo(f"zs.diff: Verfied {version}")
         return
-    
-    click.echo("zs.diff: Failed")
-    
-    
-    
 
+    click.echo("zs.diff: Failed")
 
 
 if __name__ == "__main__":

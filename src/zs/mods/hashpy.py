@@ -3,6 +3,7 @@ import click
 import os
 import importlib
 
+
 @click.command()
 @click.argument("path", type=str)
 def cli(path):
@@ -15,7 +16,7 @@ def cli(path):
                 package_path = os.path.dirname(package.__path__)[0]
             else:
                 package_path = os.path.dirname(file)
-        except: #noqa
+        except:  # noqa
             click.echo(f"Error getting package path for {path}")
             return
     else:
@@ -37,6 +38,7 @@ def cli(path):
                         hd.update(chunk)  # Update hash with chunk
 
     click.echo(hd.hexdigest())
+
 
 if __name__ == "__main__":
     cli()

@@ -9,14 +9,15 @@ INSTALLED_PATH = os.path.join(os.path.expanduser("~"), ".zs", "installed")
 os.makedirs(INSTALLED_PATH, exist_ok=True)
 os.makedirs(SHIM_PATH, exist_ok=True)
 
-def isBuiltinPkg(name : str)->bool:
+
+def isBuiltinPkg(name: str) -> bool:
     if not name.endswith(".py"):
         name = f"{name}.py"
     return os.path.exists(os.path.join(MOD_PATH, name))
-    
+
 
 @cache
-def listInstalled()->list[str]:
+def listInstalled() -> list[str]:
     installed = []
     for pkg in os.listdir(SHIM_PATH):
         if pkg.startswith(".") or pkg.startswith("_"):
@@ -27,14 +28,21 @@ def listInstalled()->list[str]:
         installed.append(pkg)
     return installed
 
+
 @cache
-def listIndex()-> dict[str, bool]:
-    with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), "mods", "orgRepos.json"), "r") as f:
+def listIndex() -> dict[str, bool]:
+    with open(
+        os.path.join(
+            os.path.dirname(os.path.dirname(__file__)), "mods", "orgRepos.json"
+        ),
+        "r",
+    ) as f:
         data = json.load(f)
 
     return data
 
-def getCli(path : str)->str:
+
+def getCli(path: str) -> str:
     cli_path = os.path.join(path, "cli.py")
     if os.path.exists(cli_path):
         pass

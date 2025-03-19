@@ -1,6 +1,6 @@
 [project]
 name = "zus"
-version = "0.2.1"
+version = "0.2.3"
 description = "Zackary's Useful Shell"
 dependencies = [ "zuu>=7.3.0", "keyring>=25.6.0", "click>=8.1.8", "toml>=0.10.2", "orjson>=3.10.15",]
 readme = "README.md"
@@ -17,7 +17,6 @@ build-backend = "hatchling.build"
 "zs.autokill" = "zs.mods.autokill:cli"
 "zs.diff" = "zs.mods.diff:cli"
 "zs.hashpy" = "zs.mods.hashpy:cli"
-"zs.jq" = "zs.mods.jq:cli"
 "zs.kvstore" = "zs.mods.kvstore:cli"
 "zs.orgRepos.json" = "zs.mods.orgRepos.json:cli"
 zs = "zs.mods.zs:cli"
